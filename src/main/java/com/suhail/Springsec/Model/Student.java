@@ -1,10 +1,10 @@
-package com.suhail.Springsec;
+package com.suhail.Springsec.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+//@Data
+//@Builder
+@NoArgsConstructor
 @Setter
 @Getter
 @AllArgsConstructor

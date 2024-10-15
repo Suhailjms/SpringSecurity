@@ -1,5 +1,6 @@
-package com.suhail.Springsec;
+package com.suhail.Springsec.Controller;
 
+import com.suhail.Springsec.Model.Student;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,8 @@ public class StudentController {
 
     private final List<Student> students = new ArrayList<>(List.of(
             new Student(1,"Suhail",98),
-            new Student(2,"ms",100)
+            new Student(2,"ms",100),
+            new Student()
             ));
 
     @GetMapping("/stu")
