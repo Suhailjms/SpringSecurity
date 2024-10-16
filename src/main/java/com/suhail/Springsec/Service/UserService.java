@@ -34,7 +34,7 @@ public class UserService {
         // basically here we pass the unauthenticated data and gets authenticated;
 
         if(authentication.isAuthenticated()){
-            return jwtService.generateToken();
+            return jwtService.generateToken(user.getUsername());
         }
         else {
             return "fails";
