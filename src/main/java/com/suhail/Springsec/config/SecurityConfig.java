@@ -2,15 +2,18 @@ package com.suhail.Springsec.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,7 +30,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http.csrf(customizer -> customizer.disable()). // to disable the csrf token
-                authorizeHttpRequests(request -> request.anyRequest().authenticated()). // to have each request authenticated
+                authorizeHttpRequests(request -> request
+                .requestMatchers("register","login")
+                .permitAll() // here for the register and login they won't get authenticated
+                .anyRequest().authenticated()). // to have each request authenticated
                 httpBasic(Customizer.withDefaults()).  // for login
                 sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build(); // to make the session stateless where session id doesn't get stored
 
@@ -38,9 +44,14 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){  // this authenticationProvider responsible for to make authenticated ob
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); //dao is class that extends from the interface AuthenticationProvider
-        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // this now doesn't require password
+        provider.setPasswordEncoder(new BCryptPasswordEncoder(13)); //here the actual password gets hashed to get the values from the database  // this now doesn't require password
         provider.setUserDetailsService(userDetailsService);
+
         return provider;
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();  // authenticationManager will communicate to the authentication Provider
     }
 
 //    @Bean
