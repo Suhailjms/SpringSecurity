@@ -17,25 +17,31 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+         // to make jwt filter first before the userpassword authentication filter which helps to validate the jwt token
         return http.csrf(customizer -> customizer.disable()). // to disable the csrf token
                 authorizeHttpRequests(request -> request
                 .requestMatchers("register","login")
                 .permitAll() // here for the register and login they won't get authenticated
-                .anyRequest().authenticated()). // to have each request authenticated
-                httpBasic(Customizer.withDefaults()).  // for login
-                sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build(); // to make the session stateless where session id doesn't get stored
+                .anyRequest()
+                .authenticated()) // to have each request authenticated
+                .httpBasic(Customizer.withDefaults())  // for login
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // we want to add jwt filter before UsernamePasswordAuthenticationFilter
+                .build(); // to make the session stateless where session id doesn't get stored
 
 
     }
